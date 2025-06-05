@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado OAB 1ª Fase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f0f2f5, #e0e4eb);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 192, 203, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2), 0 6px 12px -3px rgba(0, 0, 0, 0.12);
+        }
+        .btn-primary {
+            background-color: #8A2BE2; /* Blue Violet */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #7A1DD0; /* Slightly darker Blue Violet */
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #FFC0CB; /* Pink */
+            color: #8A2BE2;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #E0A0B0; /* Slightly darker Pink */
+            color: white;
+            transform: translateY(-2px);
+        }
+        .btn-finish {
+            background-color: #FF4500; /* Orange Red */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-finish:hover {
+            background-color: #E03C00; /* Slightly darker Orange Red */
+            transform: translateY(-2px);
+        }
+        .option-label {
+            display: block;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            margin-bottom: 0.75rem;
+        }
+        .option-label:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .option-label input[type="radio"]:checked + span {
+            background-color: #eef2ff; /* Light blue-violet for selected */
+            border-color: #8A2BE2;
+        }
+        .option-label.correct {
+            background-color: #d1fae5 !important; /* Light green */
+            border-color: #32CD32 !important; /* Lime Green */
+            font-weight: 600;
+        }
+        .option-label.incorrect {
+            background-color: #fee2e2 !important; /* Light red */
+            border-color: #FF4500 !important; /* Orange Red */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container-wrapper">
+        <!-- Tela de Boas-Vindas -->
+        <div id="intro-screen" class="card text-center">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-[#8A2BE2]">Simulado OAB 1ª Fase</h2>
+            <p class="text-lg text-gray-700 mb-6">Prepare-se para o Exame de Ordem com este simulado interativo!</p>
+            <div class="text-left text-gray-600 mb-8 max-w-md mx-auto">
+                <p class="mb-2"><strong>Instruções:</strong></p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>O simulado possui 80 questões de múltipla escolha.</li>
+                    <li>O tempo total de prova é de 5 horas (300 minutos).</li>
+                    <li>O contador de tempo será ativado **assim que você responder a primeira questão**.</li>
+                    <li>Para ser aprovado, você precisa acertar no mínimo 40 questões (50% da prova).</li>
+                    <li>Ao finalizar, você verá seu resultado e poderá revisar todas as questões com a correção.</li>
+                </ul>
+            </div>
+            <button id="start-exam-btn" class="btn-primary">Iniciar Simulado</button>
+        </div>
+
+        <!-- Tela do Simulado -->
+        <div id="exam-screen" class="card hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-counter" class="text-lg font-semibold text-[#FF4500]">Questão 1/80</span>
+                <span id="timer-display" class="text-2xl font-bold text-[#8A2BE2]">00:00:00</span>
+            </div>
+
+            <div id="question-area" class="mb-8">
+                <p class="text-gray-600 text-sm mb-2" id="discipline-display"></p>
+                <p class="text-xl font-semibold mb-6" id="question-text"></p>
+                <div id="options-container">
+                    <!-- Opções serão carregadas aqui -->
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button id="prev-btn" class="btn-secondary" disabled>Anterior</button>
+                <button id="next-btn" class="btn-primary">Próxima</button>
+                <button id="finish-btn" class="btn-finish hidden">Finalizar Simulado</button>
+            </div>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div id="results-screen" class="card hidden text-center">
+            <h2 id="result-status" class="text-4xl font-extrabold mb-4"></h2>
+            <p class="text-xl text-gray-700 mb-2">Você acertou <span id="correct-answers-display" class="font-bold text-[#32CD32]">0</span> de 80 questões.</p>
+            <p class="text-lg text-gray-600 mb-6">Tempo total: <span id="time-taken-display" class="font-bold text-[#8A2BE2]"></span></p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button id="review-btn" class="btn-primary">Ver Correção Detalhada</button>
+                <button id="reset-exam-btn" class="btn-secondary">Fazer Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela de Correção -->
+        <div id="correction-screen" class="card hidden">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-8 text-center text-[#8A2BE2]">Gabarito e Correção</h2>
+            <div id="correction-list">
+                <!-- Questões corrigidas serão carregadas aqui -->
+            </div>
+            <button id="back-to-results-btn" class="btn-secondary mt-8">Voltar aos Resultados</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados simulados para as 80 questões
+        const questions = [
+            // Ética Profissional (8 questões - Alta Recorrência)
+            {
+                id: 1, discipline: "Ética Profissional", question: "De acordo com o Estatuto da Advocacia e da OAB, qual o número máximo de advogados que podem atuar em sociedade de advogados?",
+                options: ["Não há limite máximo.", "Dois advogados.", "Três advogados.", "Cinco advogados."],
+                correctAnswer: "Não há limite máximo.", explanation: "O Estatuto da Advocacia e da OAB (Lei nº 8.906/94) não impõe limite máximo de advogados para a constituição de sociedade de advogados, apenas o mínimo de dois."
+            },
+            {
+                id: 2, discipline: "Ética Profissional", question: "Um advogado que foi condenado por crime infamante pode ter sua inscrição cancelada na OAB?",
+                options: ["Não, a condenação criminal não afeta a inscrição na OAB.", "Sim, mas somente se a condenação for transitada em julgado.", "Sim, independente do trânsito em julgado.", "Apenas se o crime infamante estiver listado no Código de Ética."],
+                correctAnswer: "Sim, mas somente se a condenação for transitada em julgado.", explanation: "O cancelamento da inscrição ocorre por condenação criminal transitada em julgado por crime infamante (Art. 35 do Estatuto da OAB)."
+            },
+            {
+                id: 3, discipline: "Ética Profissional", question: "O advogado pode divulgar seus serviços profissionais em rádio e televisão?",
+                options: ["Sim, desde que com moderação e finalidade exclusivamente informativa.", "Não, a publicidade deve ser restrita a meios escritos.", "Sim, mas apenas em programas jurídicos especializados.", "É proibido qualquer tipo de publicidade em rádio e televisão."],
+                correctAnswer: "Sim, desde que com moderação e finalidade exclusivamente informativa.", explanation: "O Art. 40 do Código de Ética e Disciplina da OAB permite a publicidade em rádio e televisão, desde que com moderação e finalidade informativa."
+            },
+            {
+                id: 4, discipline: "Ética Profissional", question: "Qual a consequência para o advogado que se apropria indevidamente de valores de cliente?",
+                options: ["Suspensão por 30 dias.", "Censura.", "Exclusão dos quadros da OAB.", "Advertência."],
+                correctAnswer: "Exclusão dos quadros da OAB.", explanation: "A apropriação indébita de valores do cliente é uma infração grave que pode levar à exclusão (Art. 34, XXI, do Estatuto da OAB)."
+            },
+            {
+                id: 5, discipline: "Ética Profissional", question: "Os honorários de sucumbência pertencem ao advogado?",
+                options: ["Não, pertencem à parte vencedora da causa.", "Sim, são de propriedade do advogado.", "Depende de acordo entre advogado e cliente.", "Apenas se o cliente não possuir condições financeiras."],
+                correctAnswer: "Sim, são de propriedade do advogado.", explanation: "Os honorários de sucumbência são de propriedade do advogado, conforme o Art. 23 do Estatuto da OAB."
+            },
+            {
+                id: 6, discipline: "Ética Profissional", question: "O advogado pode atuar em causa que já defendeu como juiz?",
+                options: ["Sim, não há impedimento.", "Não, configura impedimento ético.", "Apenas se a causa for de pequeno valor.", "Somente com autorização do Tribunal."],
+                correctAnswer: "Não, configura impedimento ético.", explanation: "Há impedimento para o advogado atuar em causa que já tenha atuado como juiz (Art. 28, I, do Estatuto da OAB)."
+            },
+            {
+                id: 7, discipline: "Ética Profissional", question: "Qual a pena disciplinar aplicada ao advogado que viola sigilo profissional?",
+                options: ["Advertência.", "Censura.", "Suspensão.", "Exclusão."],
+                correctAnswer: "Censura.", explanation: "A violação de sigilo profissional sujeita o advogado à pena de censura (Art. 36 do Estatuto da OAB)."
+            },
+            {
+                id: 8, discipline: "Ética Profissional", question: "O que é necessário para um bacharel em Direito se inscrever na OAB?",
+                options: ["Apenas a conclusão do curso de Direito.", "Aprovação em exame de ordem e idoneidade moral.", "Cinco anos de prática jurídica.", "Pós-graduação em Direito."],
+                correctAnswer: "Aprovação em exame de ordem e idoneidade moral.", explanation: "A aprovação no Exame de Ordem e a comprovação de idoneidade moral são requisitos para a inscrição na OAB (Art. 8º do Estatuto da OAB)."
+            },
+
+            // Direito Constitucional (7 questões - Alta Recorrência)
+            {
+                id: 9, discipline: "Direito Constitucional", question: "Qual o recurso cabível contra decisão que indefere habeas corpus em única ou última instância pelos tribunais superiores?",
+                options: ["Recurso Especial.", "Recurso Extraordinário.", "Recurso Ordinário Constitucional.", "Agravo de Instrumento."],
+                correctAnswer: "Recurso Ordinário Constitucional.", explanation: "Cabe Recurso Ordinário Constitucional para o STF/STJ contra decisões que denegarem ou concederem habeas corpus em única ou última instância (Art. 102, II, 'a' e Art. 105, II, 'a' da CF)."
+            },
+            {
+                id: 10, discipline: "Direito Constitucional", question: "Sobre os direitos e garantias fundamentais, é correto afirmar que são imprescritíveis?",
+                options: ["Não, prescrevem em 5 anos.", "Sim, são imprescritíveis.", "Apenas alguns são imprescritíveis.", "Depende da natureza do direito."],
+                correctAnswer: "Sim, são imprescritíveis.", explanation: "Os direitos e garantias fundamentais possuem, entre outras, a característica da imprescritibilidade."
+            },
+            {
+                id: 11, discipline: "Direito Constitucional", question: "A Constituição Federal de 1988 prevê a pena de morte?",
+                options: ["Sim, em tempo de guerra declarada.", "Não, em nenhuma hipótese.", "Apenas para crimes hediondos.", "Sim, para crimes contra a humanidade."],
+                correctAnswer: "Sim, em tempo de guerra declarada.", explanation: "A CF/88 veda a pena de morte, salvo em caso de guerra declarada (Art. 5º, XLVII, 'a')."
+            },
+            {
+                id: 12, discipline: "Direito Constitucional", question: "Qual o nome da ação constitucional utilizada para proteger direito líquido e certo não amparado por habeas corpus ou habeas data?",
+                options: ["Ação Popular.", "Mandado de Injunção.", "Mandado de Segurança.", "Ação Civil Pública."],
+                correctAnswer: "Mandado de Segurança.", explanation: "O Mandado de Segurança protege direito líquido e certo não amparado por habeas corpus ou habeas data (Art. 5º, LXIX, da CF)."
+            },
+            {
+                id: 13, discipline: "Direito Constitucional", question: "Quem tem competência para propor Ação Direta de Inconstitucionalidade (ADI)?",
+                options: ["Qualquer cidadão.", "Somente o Presidente da República.", "O Governador de Estado.", "O Presidente da República, a Mesa do Senado, a Mesa da Câmara, entre outros."],
+                correctAnswer: "O Presidente da República, a Mesa do Senado, a Mesa da Câmara, entre outros.", explanation: "O Art. 103 da CF lista os legitimados a propor ADI."
+            },
+            {
+                id: 14, discipline: "Direito Constitucional", question: "O voto no Brasil é obrigatório para maiores de:",
+                options: ["16 anos.", "17 anos.", "18 anos.", "21 anos."],
+                correctAnswer: "18 anos.", explanation: "O voto é obrigatório para maiores de 18 anos e facultativo para analfabetos, maiores de 70 anos e maiores de 16 e menores de 18 anos (Art. 14, §1º, da CF)."
+            },
+            {
+                id: 15, discipline: "Direito Constitucional", question: "É direito do trabalhador urbano e rural, além de outros que visem à melhoria de sua condição social, o seguro-desemprego, em caso de:",
+                options: ["Desemprego voluntário.", "Desemprego involuntário, quando houver culpa do empregado.", "Desemprego involuntário, quando desocupado.", "Qualquer tipo de desemprego."],
+                correctAnswer: "Desemprego involuntário, quando desocupado.", explanation: "O seguro-desemprego é um direito social em caso de desemprego involuntário (Art. 7º, II, da CF)."
+            },
+
+            // Direito Civil (7 questões - Alta Recorrência)
+            {
+                id: 16, discipline: "Direito Civil", question: "Qual a idade mínima para casar no Brasil, com exceções?",
+                options: ["16 anos.", "18 anos.", "21 anos.", "14 anos."],
+                correctAnswer: "18 anos.", explanation: "A idade núbil é de 18 anos. Excepcionalmente, permite-se o casamento de quem já completou 16 anos, mediante autorização dos pais ou representante legal (Art. 1.517 do Código Civil)."
+            },
+            {
+                id: 17, discipline: "Direito Civil", question: "A pessoa jurídica de direito privado adquire personalidade jurídica com o registro de seus atos constitutivos no órgão competente. Qual o registro competente para as associações?",
+                options: ["Junta Comercial.", "Cartório de Registro de Pessoas Jurídicas.", "Receita Federal.", "Cartório de Registro de Imóveis."],
+                correctAnswer: "Cartório de Registro de Pessoas Jurídicas.", explanation: "As associações adquirem personalidade jurídica com o registro de seu estatuto no Cartório de Registro Civil de Pessoas Jurídicas (Art. 45 do Código Civil)."
+            },
+            {
+                id: 18, discipline: "Direito Civil", question: "Em um contrato de compra e venda, o vendedor é responsável pela evicção?",
+                options: ["Não, a evicção é risco do comprador.", "Sim, é responsável, salvo cláusula expressa em contrário.", "Apenas se houver dolo do vendedor.", "Somente se o contrato for de adesão."],
+                correctAnswer: "Sim, é responsável, salvo cláusula expressa em contrário.", explanation: "O vendedor responde pela evicção, salvo se houver cláusula expressa em contrário, em que o comprador assuma o risco (Art. 447 e ss. do Código Civil)."
+            },
+            {
+                id: 19, discipline: "Direito Civil", question: "Qual o prazo prescricional para a pretensão de reparação civil?",
+                options: ["1 ano.", "3 anos.", "5 anos.", "10 anos."],
+                correctAnswer: "3 anos.", explanation: "O prazo prescricional para a pretensão de reparação civil é de três anos (Art. 206, § 3º, V, do Código Civil)."
+            },
+            {
+                id: 20, discipline: "Direito Civil", question: "A hipoteca é um direito real de garantia que recai sobre bens:",
+                options: ["Móveis.", "Imóveis.", "Móveis e imóveis.", "Apenas bens incorpóreos."],
+                correctAnswer: "Imóveis.", explanation: "A hipoteca recai sobre bens imóveis (Art. 1.473 do Código Civil)."
+            },
+            {
+                id: 21, discipline: "Direito Civil", question: "Em qual regime de bens os bens adquiridos onerosamente na constância do casamento se comunicam?",
+                options: ["Separação total de bens.", "Comunhão parcial de bens.", "Comunhão universal de bens.", "Participação final nos aquestos."],
+                correctAnswer: "Comunhão parcial de bens.", explanation: "Na comunhão parcial, comunicam-se os bens adquiridos onerosamente na constância do casamento (Art. 1.658 do Código Civil)."
+            },
+            {
+                id: 22, discipline: "Direito Civil", question: "Qual o princípio que estabelece que ninguém pode ser compelido a manter-se em condomínio?",
+                options: ["Princípio da função social da propriedade.", "Princípio da autonomia da vontade.", "Princípio da indivisibilidade do condomínio.", "Princípio da livre dissolução do condomínio."],
+                correctAnswer: "Princípio da livre dissolução do condomínio.", explanation: "Ninguém pode ser compelido a permanecer em condomínio, podendo a qualquer tempo exigir a divisão da coisa comum (Art. 1.320 do Código Civil)."
+            },
+
+            // Direito Processual Civil (6 questões - Alta Recorrência)
+            {
+                id: 23, discipline: "Processo Civil", question: "Qual o prazo para interpor agravo de instrumento?",
+                options: ["5 dias.", "10 dias.", "15 dias.", "30 dias."],
+                correctAnswer: "15 dias.", explanation: "O prazo para interpor agravo de instrumento é de 15 dias (Art. 1.003, § 5º, do CPC)."
+            },
+            {
+                id: 24, discipline: "Processo Civil", question: "A tutela provisória pode ser de urgência ou de:",
+                options: ["Evidência.", "Mérito.", "Definitiva.", "Cautelar."],
+                correctAnswer: "Evidência.", explanation: "A tutela provisória pode ser de urgência ou de evidência (Art. 294 do CPC)."
+            },
+            {
+                id: 25, discipline: "Processo Civil", question: "Em qual fase do processo ocorre o cumprimento de sentença?",
+                options: ["Fase de conhecimento.", "Fase instrutória.", "Fase de execução.", "Fase recursal."],
+                correctAnswer: "Fase de execução.", explanation: "O cumprimento de sentença é uma fase do processo que sucede a fase de conhecimento (Art. 513 do CPC)."
+            },
+            {
+                id: 26, discipline: "Processo Civil", question: "Contra qual decisão cabe recurso de apelação?",
+                options: ["Decisão interlocutória.", "Despacho de mero expediente.", "Sentença.", "Acórdão."],
+                correctAnswer: "Sentença.", explanation: "Contra a sentença cabe apelação (Art. 1.009 do CPC)."
+            },
+            {
+                id: 27, discipline: "Processo Civil", question: "Qual o tipo de citação em que o réu é cientificado por edital?",
+                options: ["Citação pessoal.", "Citação por hora certa.", "Citação por edital.", "Citação por carta."],
+                correctAnswer: "Citação por edital.", explanation: "A citação por edital é uma forma de citação ficta, utilizada quando o réu está em local incerto e não sabido (Art. 256 do CPC)."
+            },
+            {
+                id: 28, discipline: "Processo Civil", question: "A reconvenção é cabível na ação de:",
+                options: ["Execução.", "Mandado de Segurança.", "Cobranca.", "Qualquer ação que admita ampliação do objeto."],
+                correctAnswer: "Cobranca.", explanation: "A reconvenção é o pedido do réu contra o autor, na mesma ação, sendo cabível, por exemplo, na ação de cobrança (Art. 343 do CPC)."
+            },
+
+            // Direito Penal (6 questões - Alta Recorrência)
+            {
+                id: 29, discipline: "Direito Penal", question: "O erro sobre elemento constitutivo do tipo legal de crime exclui:",
+                options: ["A culpabilidade.", "A ilicitude.", "O dolo ou a culpa.", "A tipicidade."],
+                correctAnswer: "O dolo ou a culpa.", explanation: "O erro sobre elemento constitutivo do tipo legal de crime (erro de tipo) exclui o dolo ou a culpa, dependendo da sua inevitabilidade (Art. 20 do Código Penal)."
+            },
+            {
+                id: 30, discipline: "Direito Penal", question: "O crime de furto é um crime contra:",
+                options: ["A vida.", "O patrimônio.", "A dignidade sexual.", "A administração pública."],
+                correctAnswer: "O patrimônio.", explanation: "O furto é um crime contra o patrimônio (Art. 155 do Código Penal)."
+            },
+            {
+                id: 31, discipline: "Direito Penal", question: "Qual a teoria que define o crime como fato típico, ilícito e culpável?",
+                options: ["Teoria Finalista da Ação.", "Teoria Causalista da Ação.", "Teoria Tripartite do Crime.", "Teoria Monista do Crime."],
+                correctAnswer: "Teoria Tripartite do Crime.", explanation: "A teoria tripartite (ou tripartida) define o crime como fato típico, ilícito e culpável."
+            },
+            {
+                id: 32, discipline: "Direito Penal", question: "Em caso de legítima defesa, o agente que repele injusta agressão, usando moderadamente dos meios necessários, atua sob uma:",
+                options: ["Causa de diminuição de pena.", "Excludente de ilicitude.", "Excludente de culpabilidade.", "Atenuante de pena."],
+                correctAnswer: "Excludente de ilicitude.", explanation: "A legítima defesa é uma das excludentes de ilicitude previstas no Art. 23 do Código Penal."
+            },
+            {
+                id: 33, discipline: "Direito Penal", question: "A tentativa de crime é punível com a pena correspondente ao crime consumado, diminuída de:",
+                options: ["Um terço a dois terços.", "Metade a dois terços.", "Um sexto a um terço.", "Dois terços a um terço."],
+                correctAnswer: "Um terço a dois terços.", explanation: "A tentativa é punida com a pena do crime consumado, diminuída de um a dois terços (Art. 14, II, do Código Penal)."
+            },
+            {
+                id: 34, discipline: "Direito Penal", question: "Qual a pena para o crime de homicídio simples?",
+                options: ["Reclusão, de seis a doze anos.", "Detenção, de um a três anos.", "Reclusão, de doze a trinta anos.", "Detenção, de seis meses a dois anos."],
+                correctAnswer: "Reclusão, de seis a doze anos.", explanation: "A pena para homicídio simples é reclusão, de seis a doze anos (Art. 121 do Código Penal)."
+            },
+
+            // Direito Processual Penal (6 questões - Alta Recorrência)
+            {
+                id: 35, discipline: "Processual Penal", question: "A ação penal pública incondicionada é promovida pelo:",
+                options: ["Ofendido.", "Ministério Público.", "Advogado do ofendido.", "Juiz."],
+                correctAnswer: "Ministério Público.", explanation: "A ação penal pública incondicionada é de iniciativa do Ministério Público, independentemente de representação ou requisição (Art. 24 do CPP)."
+            },
+            {
+                id: 36, discipline: "Processual Penal", question: "Qual o recurso cabível contra decisão que concede ou denega habeas corpus em primeira instância?",
+                options: ["Recurso em Sentido Estrito.", "Agravo em Execução.", "Apelação.", "Recurso Ordinário Constitucional."],
+                correctAnswer: "Recurso em Sentido Estrito.", explanation: "Cabe Recurso em Sentido Estrito contra decisão que conceder ou denegar a ordem de habeas corpus (Art. 581, X, do CPP)."
+            },
+            {
+                id: 37, discipline: "Processual Penal", question: "A prisão em flagrante é uma medida cautelar de natureza:",
+                options: ["Preventiva.", "Provisória.", "Cessatória.", "Antecipatória."],
+                correctAnswer: "Provisória.", explanation: "A prisão em flagrante é uma medida provisória e precária, que precede a formalização da prisão preventiva ou outras cautelares."
+            },
+            {
+                id: 38, discipline: "Processual Penal", question: "Qual o princípio que proíbe que a prova ilícita seja utilizada no processo penal?",
+                options: ["Princípio da livre apreciação da prova.", "Princípio da persuasão racional.", "Princípio da busca da verdade real.", "Princípio da inadmissibilidade das provas ilícitas."],
+                correctAnswer: "Princípio da inadmissibilidade das provas ilícitas.", explanation: "As provas obtidas por meios ilícitos são inadmissíveis no processo (Art. 5º, LVI, da CF; Art. 157 do CPP)."
+            },
+            {
+                id: 39, discipline: "Processual Penal", question: "O inquérito policial é dispensável para o oferecimento da denúncia pelo Ministério Público?",
+                options: ["Não, é indispensável.", "Sim, se houver elementos suficientes para a denúncia.", "Apenas em crimes de menor potencial ofensivo.", "Somente se a vítima for menor de idade."],
+                correctAnswer: "Sim, se houver elementos suficientes para a denúncia.", explanation: "O inquérito policial é dispensável se o Ministério Público já tiver elementos para o oferecimento da denúncia (Art. 12 do CPP)."
+            },
+            {
+                id: 40, discipline: "Processual Penal", question: "Qual o órgão competente para julgar crimes dolosos contra a vida?",
+                options: ["Juiz Singular.", "Vara da Fazenda Pública.", "Tribunal do Júri.", "Turma Recursal."],
+                correctAnswer: "Tribunal do Júri.", explanation: "O Tribunal do Júri é competente para julgar crimes dolosos contra a vida (Art. 5º, XXXVIII, da CF)."
+            },
+
+            // Direito Administrativo (5 questões - Média Recorrência)
+            {
+                id: 41, discipline: "Direito Administrativo", question: "De acordo com a Lei nº 14.133/2021 (Nova Lei de Licitações), qual a modalidade licitatória que visa à contratação de obras e serviços de engenharia de grande vulto?",
+                options: ["Concorrência.", "Tomada de Preços.", "Diálogo Competitivo.", "Leilão."],
+                correctAnswer: "Diálogo Competitivo.", explanation: "O diálogo competitivo é uma modalidade nova, destinada a contratações complexas, como grandes obras (Art. 32 da Lei nº 14.133/2021)."
+            },
+            {
+                id: 42, discipline: "Direito Administrativo", question: "A responsabilidade civil do Estado por danos causados por seus agentes, nessa qualidade, é:",
+                options: ["Subjetiva, dependendo de dolo ou culpa.", "Objetiva, independendo de dolo ou culpa.", "Solidária com o agente público.", " Subsidiária do Estado."],
+                correctAnswer: "Objetiva, independendo de dolo ou culpa.", explanation: "A responsabilidade do Estado é objetiva, nos termos do Art. 37, § 6º, da CF."
+            },
+            {
+                id: 43, discipline: "Direito Administrativo", question: "Os atos administrativos são dotados de presunção de legitimidade e:",
+                options: ["Irrevogabilidade.", "Imperatividade.", "Gratuidade.", "Discricionariedade."],
+                correctAnswer: "Imperatividade.", explanation: "A presunção de legitimidade e a imperatividade são atributos dos atos administrativos."
+            },
+            {
+                id: 44, discipline: "Direito Administrativo", question: "Qual a lei que trata da Improbidade Administrativa?",
+                options: ["Lei nº 8.666/93.", "Lei nº 9.784/99.", "Lei nº 8.429/92.", "Lei nº 14.133/21."],
+                correctAnswer: "Lei nº 8.429/92.", explanation: "A Lei nº 8.429/92 dispõe sobre as sanções aplicáveis aos agentes públicos nos casos de atos de improbidade administrativa."
+            },
+            {
+                id: 45, discipline: "Direito Administrativo", question: "A desapropriação por necessidade ou utilidade pública é uma forma de intervenção do Estado na:",
+                options: ["Liberdade individual.", "Propriedade privada.", "Ordem econômica.", "Segurança pública."],
+                correctAnswer: "Propriedade privada.", explanation: "A desapropriação é uma forma de intervenção supressiva na propriedade privada, mediante justa e prévia indenização (Art. 5º, XXIV, da CF)."
+            },
+
+            // Direito do Trabalho (5 questões - Média Recorrência)
+            {
+                id: 46, discipline: "Direito do Trabalho", question: "Qual a idade mínima para o trabalho no Brasil, salvo exceções?",
+                options: ["14 anos como aprendiz.", "16 anos, proibido trabalho noturno, perigoso ou insalubre.", "18 anos.", "12 anos com autorização judicial."],
+                correctAnswer: "16 anos, proibido trabalho noturno, perigoso ou insalubre.", explanation: "A Constituição Federal proíbe qualquer trabalho a menores de dezesseis anos, salvo na condição de aprendiz, a partir de quatorze anos (Art. 7º, XXXIII, da CF)."
+            },
+            {
+                id: 47, discipline: "Direito do Trabalho", question: "O salário-família é pago em razão do número de:",
+                options: ["Dependentes menores de 14 anos ou inválidos.", "Filhos maiores de 18 anos.", "Salários mínimos recebidos.", "Anos de serviço."],
+                correctAnswer: "Dependentes menores de 14 anos ou inválidos.", explanation: "O salário-família é devido por filho de qualquer condição até 14 anos de idade ou inválido (Art. 65 da Lei nº 8.213/91)."
+            },
+            {
+                id: 48, discipline: "Direito do Trabalho", question: "Qual o prazo para o pagamento das verbas rescisórias em caso de aviso prévio trabalhado?",
+                options: ["Até o 1º dia útil após o término do contrato.", "Até o 10º dia após o término do contrato.", "No dia do término do contrato.", "Até 5 dias úteis após a rescisão."],
+                correctAnswer: "Até o 1º dia útil após o término do contrato.", explanation: "No caso de aviso prévio trabalhado, o pagamento deve ser feito no primeiro dia útil imediato ao término do contrato (Art. 477, § 6º, 'a', da CLT)."
+            },
+            {
+                id: 49, discipline: "Direito do Trabalho", question: "As férias anuais remuneradas, com, pelo menos, um terço a mais do que o salário normal, é um direito do trabalhador que trabalha por:",
+                options: ["Mais de seis meses.", "Mais de um ano.", "Dois anos ininterruptos.", "Tempo determinado."],
+                correctAnswer: "Mais de um ano.", explanation: "O direito às férias surge após 12 meses de contrato de trabalho (período aquisitivo) (Art. 134 da CLT)."
+            },
+            {
+                id: 50, discipline: "Direito do Trabalho", question: "A estabilidade provisória da gestante é garantida desde a confirmação da gravidez até:",
+                options: ["O parto.", "30 dias após o parto.", "Cinco meses após o parto.", "Um ano após o parto."],
+                correctAnswer: "Cinco meses após o parto.", explanation: "A gestante tem estabilidade desde a confirmação da gravidez até cinco meses após o parto (Art. 10, II, 'b', do ADCT)."
+            },
+
+            // Direito Processual do Trabalho (5 questões - Média Recorrência)
+            {
+                id: 51, discipline: "Processual do Trabalho", question: "Qual o prazo para interpor Recurso Ordinário no processo do trabalho?",
+                options: ["5 dias.", "8 dias.", "10 dias.", "15 dias."],
+                correctAnswer: "8 dias.", explanation: "O prazo para interpor Recurso Ordinário é de 8 dias (Art. 895, I, da CLT)."
+            },
+            {
+                id: 52, discipline: "Processual do Trabalho", question: "A competência da Justiça do Trabalho abrange as ações decorrentes da relação de:",
+                options: ["Consumo.", "Trabalho.", "Locação.", "Sociedade."],
+                correctAnswer: "Trabalho.", explanation: "A Justiça do Trabalho é competente para julgar as ações decorrentes da relação de trabalho (Art. 114 da CF)."
+            },
+            {
+                id: 53, discipline: "Processual do Trabalho", question: "Qual o rito processual aplicável às causas de valor até 40 salários mínimos?",
+                options: ["Rito Ordinário.", "Rito Sumário.", "Rito Sumaríssimo.", "Rito Especial."],
+                correctAnswer: "Rito Sumaríssimo.", explanation: "O rito sumaríssimo é aplicável às causas cujo valor não exceda 40 salários mínimos (Art. 852-A da CLT)."
+            },
+            {
+                id: 54, discipline: "Processual do Trabalho", question: "O acordo judicial homologado na Justiça do Trabalho possui força de:",
+                options: ["Decisão judicial.", "Título executivo extrajudicial.", "Sentença transitada em julgado.", "Ato administrativo."],
+                correctAnswer: "Sentença transitada em julgado.", explanation: "O termo de conciliação firmado na Justiça do Trabalho tem força de decisão irrecorrível (Art. 831, parágrafo único, da CLT)."
+            },
+            {
+                id: 55, discipline: "Processual do Trabalho", question: "Em regra, qual o prazo para a execução das contribuições previdenciárias na Justiça do Trabalho?",
+                options: ["1 ano.", "2 anos.", "5 anos.", "Não prescreve."],
+                correctAnswer: "5 anos.", explanation: "O prazo prescricional para a cobrança das contribuições previdenciárias é de 5 anos (Art. 43, § 1º, da Lei nº 8.212/91)."
+            },
+
+            // Direito Tributário (5 questões - Média Recorrência)
+            {
+                id: 56, discipline: "Direito Tributário", question: "Imposto sobre a Propriedade de Veículos Automotores (IPVA) é um imposto de competência:",
+                options: ["Municipal.", "Estadual.", "Federal.", "Distrital."],
+                correctAnswer: "Estadual.", explanation: "O IPVA é um imposto de competência dos Estados e do Distrito Federal (Art. 155, III, da CF)."
+            },
+            {
+                id: 57, discipline: "Direito Tributário", question: "Qual o princípio que veda a cobrança de tributos no mesmo exercício financeiro em que haja sido publicada a lei que os instituiu ou aumentou?",
+                options: ["Princípio da legalidade.", "Princípio da irretroatividade.", "Princípio da anterioridade anual.", "Princípio da noventena."],
+                correctAnswer: "Princípio da anterioridade anual.", explanation: "A anterioridade anual impede a cobrança de tributos no mesmo exercício financeiro de sua instituição ou aumento (Art. 150, III, 'b', da CF)."
+            },
+            {
+                id: 58, discipline: "Direito Tributário", question: "O imposto sobre a renda e proventos de qualquer natureza (IR) é de competência:",
+                options: ["Estadual.", "Municipal.", "Federal.", "Distrital."],
+                correctAnswer: "Federal.", explanation: "O imposto sobre a renda é de competência da União (Art. 153, III, da CF)."
+            },
+            {
+                id: 59, discipline: "Direito Tributário", question: "O que é fato gerador da obrigação tributária?",
+                options: ["A criação da lei tributária.", "A ocorrência do evento que dá ensejo à cobrança do tributo.", "O pagamento do tributo.", "A fiscalização do tributo."],
+                correctAnswer: "A ocorrência do evento que dá ensejo à cobrança do tributo.", explanation: "Fato gerador é a situação definida em lei como necessária e suficiente à ocorrência do fato gerador (Art. 114 do CTN)."
+            },
+            {
+                id: 60, discipline: "Direito Tributário", question: "Qual o nome do instituto que extingue o crédito tributário pelo decurso do tempo?",
+                options: ["Decadência.", "Anistia.", "Remissão.", "Transação."],
+                correctAnswer: "Decadência.", explanation: "A decadência é uma das formas de extinção do crédito tributário pelo decurso do tempo, antes de seu lançamento (Art. 156, V, do CTN)."
+            },
+
+            // Direito Empresarial (4 questões - Média Recorrência)
+            {
+                id: 61, discipline: "Direito Empresarial", question: "Qual o tipo societário que a responsabilidade dos sócios é limitada ao capital social, e a administração pode ser exercida por não sócios?",
+                options: ["Sociedade em Nome Coletivo.", "Sociedade Simples.", "Sociedade Limitada.", "Sociedade em Comandita Simples."],
+                correctAnswer: "Sociedade Limitada.", explanation: "Na sociedade limitada, a responsabilidade é restrita ao valor das cotas, e a administração pode ser exercida por sócios ou não sócios (Art. 1.052 e ss. do Código Civil)."
+            },
+            {
+                id: 62, discipline: "Direito Empresarial", question: "Qual o título de crédito que representa uma ordem de pagamento à vista ou a prazo?",
+                options: ["Nota Promissória.", "Cheque.", "Duplicata.", "Cédula de Crédito Bancário."],
+                correctAnswer: "Cheque.", explanation: "O cheque é uma ordem de pagamento à vista (Lei do Cheque nº 7.357/85)."
+            },
+            {
+                id: 63, discipline: "Direito Empresarial", question: "A recuperação judicial tem como objetivo:",
+                options: ["Decretar a falência da empresa.", "Permitir a reestruturação da empresa para evitar a falência.", "Liquidar os bens da empresa para pagar credores.", "Proteger os sócios de dívidas."],
+                correctAnswer: "Permitir a reestruturação da empresa para evitar a falência.", explanation: "A recuperação judicial busca viabilizar a superação da situação de crise econômico-financeira do devedor (Art. 47 da Lei nº 11.101/2005)."
+            },
+            {
+                id: 64, discipline: "Direito Empresarial", question: "A sociedade anônima tem seu capital dividido em:",
+                options: ["Quotas.", "Partes.", "Ações.", "Bens."],
+                correctAnswer: "Ações.", explanation: "O capital social da sociedade anônima é dividido em ações (Art. 2º da Lei nº 6.404/76)."
+            },
+
+            // Direitos Humanos (2 questões - Baixa Recorrência)
+            {
+                id: 65, discipline: "Direitos Humanos", question: "Qual o principal tratado internacional de Direitos Humanos que o Brasil é signatário e que garante o direito à vida?",
+                options: ["Pacto Internacional sobre Direitos Civis e Políticos.", "Pacto de San José da Costa Rica (CADH).", "Declaração Universal dos Direitos Humanos.", "Convenção Americana de Direitos Humanos."],
+                correctAnswer: "Pacto de San José da Costa Rica (CADH).", explanation: "O Pacto de San José da Costa Rica (Convenção Americana de Direitos Humanos) é o principal tratado regional que trata do direito à vida."
+            },
+            {
+                id: 66, discipline: "Direitos Humanos", question: "O princípio da dignidade da pessoa humana é fundamento da República Federativa do Brasil?",
+                options: ["Não, é apenas um valor moral.", "Sim, é um dos fundamentos.", "Apenas em situações de exceção.", "Somente para cidadãos brasileiros."],
+                correctAnswer: "Sim, é um dos fundamentos.", explanation: "A dignidade da pessoa humana é um dos fundamentos da República Federativa do Brasil (Art. 1º, III, da CF)."
+            },
+
+            // Filosofia do Direito (2 questões - Baixa Recorrência)
+            {
+                id: 67, discipline: "Filosofia do Direito", question: "Qual o filósofo que cunhou a frase 'o homem é o lobo do homem'?",
+                options: ["Platão.", "Aristóteles.", "Thomas Hobbes.", "John Locke."],
+                correctAnswer: "Thomas Hobbes.", explanation: "A frase 'Homo homini lupus' (o homem é o lobo do homem) é atribuída a Thomas Hobbes, em sua obra 'Leviatã'."
+            },
+            {
+                id: 68, discipline: "Filosofia do Direito", question: "Para Immanuel Kant, a moralidade de uma ação reside:",
+                options: ["Em suas consequências.", "Na intenção do agente.", "Na utilidade da ação para a sociedade.", "Na obediência à lei divina."],
+                correctAnswer: "Na intenção do agente.", explanation: "Para Kant, a moralidade de uma ação reside na intenção do agente, baseada no dever e na razão, e não em suas consequências (imperativo categórico)."
+            },
+
+            // Estatuto da Criança e do Adolescente (ECA) (2 questões - Baixa Recorrência)
+            {
+                id: 69, discipline: "ECA", question: "A criança e o adolescente têm direito à liberdade, ao respeito e à dignidade como:",
+                options: ["Pessoas em desenvolvimento.", "Cidadãos adultos.", "Dependentes dos pais.", "Indivíduos sem direitos próprios."],
+                correctAnswer: "Pessoas em desenvolvimento.", explanation: "O ECA reconhece a criança e o adolescente como pessoas em peculiar condição de desenvolvimento, titulares de todos os direitos fundamentais (Art. 3º do ECA)."
+            },
+            {
+                id: 70, discipline: "ECA", question: "Qual a idade limite para ser considerado adolescente, para fins do ECA?",
+                options: ["Até 12 anos incompletos.", "Até 18 anos incompletos.", "Até 21 anos incompletos.", "Até 14 anos incompletos."],
+                correctAnswer: "Até 18 anos incompletos.", explanation: "Considera-se criança a pessoa até doze anos de idade incompletos, e adolescente aquela entre doze e dezoito anos de idade (Art. 2º do ECA)."
+            },
+
+            // Direito do Consumidor (2 questões - Baixa Recorrência)
+            {
+                id: 71, discipline: "Direito do Consumidor", question: "Qual o prazo para reclamar de vício aparente ou de fácil constatação em produto durável?",
+                options: ["30 dias.", "60 dias.", "90 dias.", "1 ano."],
+                correctAnswer: "90 dias.", explanation: "O prazo para reclamar de vícios aparentes em produtos duráveis é de 90 dias (Art. 26, II, do CDC)."
+            },
+            {
+                id: 72, discipline: "Direito do Consumidor", question: "O fornecedor responde objetivamente pelos danos causados ao consumidor por defeitos decorrentes de:",
+                options: ["Apenas má-fé do consumidor.", "Fabricação, montagem, criação, construção, manipulação ou apresentação de seus produtos.", "Somente se comprovar sua culpa.", "Apenas vícios de serviço."],
+                correctAnswer: "Fabricação, montagem, criação, construção, manipulação ou apresentação de seus produtos.", explanation: "A responsabilidade do fornecedor é objetiva pelos fatos do produto e do serviço, independentemente de culpa (Art. 12 do CDC)."
+            },
+
+            // Direito Ambiental (2 questões - Baixa Recorrência)
+            {
+                id: 73, discipline: "Direito Ambiental", question: "Qual o princípio do Direito Ambiental que estabelece que o poluidor deve arcar com os custos da reparação do dano ambiental?",
+                options: ["Princípio da prevenção.", "Princípio do poluidor-pagador.", "Princípio do desenvolvimento sustentável.", "Princípio da precaução."],
+                correctAnswer: "Princípio do poluidor-pagador.", explanation: "O princípio do poluidor-pagador imputa ao agente causador do dano ambiental a responsabilidade pela sua reparação."
+            },
+            {
+                id: 74, discipline: "Direito Ambiental", question: "A Política Nacional do Meio Ambiente estabelece a responsabilidade civil por danos ambientais como:",
+                options: ["Subjetiva.", "Objetiva.", "Contratual.", "Solidária com a Administração Pública."],
+                correctAnswer: "Objetiva.", explanation: "A responsabilidade civil por danos ambientais é objetiva, ou seja, independe da comprovação de culpa (Art. 14, § 1º, da Lei nº 6.938/81)."
+            },
+
+            // Direito Previdenciário (2 questões - Baixa Recorrência)
+            {
+                id: 75, discipline: "Direito Previdenciário", question: "Qual o benefício previdenciário devido ao segurado que fica incapacitado para o trabalho de forma permanente?",
+                options: ["Auxílio-doença.", "Aposentadoria por incapacidade permanente.", "Auxílio-acidente.", "Pensão por morte."],
+                correctAnswer: "Aposentadoria por incapacidade permanente.", explanation: "A aposentadoria por incapacidade permanente (antiga aposentadoria por invalidez) é devida ao segurado que, por doença ou acidente, for considerado incapacitado para o trabalho e não puder ser reabilitado (Art. 42 da Lei nº 8.213/91)."
+            },
+            {
+                id: 76, discipline: "Direito Previdenciário", question: "O segurado facultativo é aquele que:",
+                options: ["Exerce atividade remunerada.", "Não exerce atividade remunerada, mas contribui para a previdência.", "É servidor público.", "É aposentado."],
+                correctAnswer: "Não exerce atividade remunerada, mas contribui para a previdência.", explanation: "O segurado facultativo é a pessoa maior de 16 anos que não exerce atividade remunerada que o enquadre como segurado obrigatório do Regime Geral de Previdência Social, mas que decide contribuir (Art. 11 da Lei nº 8.213/91)."
+            },
+
+            // Direito Financeiro (2 questões - Baixa Recorrência)
+            {
+                id: 77, discipline: "Direito Financeiro", question: "Qual o instrumento que estabelece as diretrizes, objetivos e metas da administração pública federal para as despesas de capital e outras delas decorrentes?",
+                options: ["Lei Orçamentária Anual (LOA).", "Plano Plurianual (PPA).", "Lei de Diretrizes Orçamentárias (LDO).", "Lei de Responsabilidade Fiscal."],
+                correctAnswer: "Plano Plurianual (PPA).", explanation: "O PPA estabelece as diretrizes, objetivos e metas da administração pública federal para um período de quatro anos (Art. 165, I, da CF)."
+            },
+            {
+                id: 78, discipline: "Direito Financeiro", question: "As despesas de custeio são aquelas destinadas à:",
+                options: ["Realização de investimentos.", "Manutenção de serviços e atividades.", "Amortização da dívida pública.", "Aquisição de imóveis."],
+                correctAnswer: "Manutenção de serviços e atividades.", explanation: "As despesas de custeio são classificadas como despesas correntes e visam à manutenção da máquina pública (Art. 13 da Lei nº 4.320/64)."
+            },
+
+            // Direito Eleitoral (2 questões - Baixa Recorrência)
+            {
+                id: 79, discipline: "Direito Eleitoral", question: "Qual a idade mínima para ser Presidente da República no Brasil?",
+                options: ["21 anos.", "30 anos.", "35 anos.", "40 anos."],
+                correctAnswer: "35 anos.", explanation: "Para ser Presidente ou Vice-Presidente da República, é necessário ter 35 anos (Art. 14, § 3º, VI, 'a', da CF)."
+            },
+            {
+                id: 80, discipline: "Direito Eleitoral", question: "A Justiça Eleitoral é composta, entre outros, por:",
+                options: ["Juízes de Direito e Tribunais de Justiça.", "Tribunal Superior Eleitoral (TSE) e Tribunais Regionais Eleitorais (TREs).", "Conselho Nacional de Justiça e Conselho Nacional do Ministério Público.", "Supremo Tribunal Federal e Superior Tribunal de Justiça."],
+                correctAnswer: "Tribunal Superior Eleitoral (TSE) e Tribunais Regionais Eleitorais (TREs).", explanation: "A Justiça Eleitoral é composta, entre outros, pelo TSE, TREs e Juízes Eleitorais (Art. 118 da CF)."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {}; // { questionId: "resposta do usuário" }
+        let timerInterval = null;
+        let timeElapsed = 0; // in seconds
+        let isTimerRunning = false;
+        const totalExamTimeSeconds = 5 * 60 * 60; // 5 hours in seconds
+
+        const introScreen = document.getElementById('intro-screen');
+        const examScreen = document.getElementById('exam-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const correctionScreen = document.getElementById('correction-screen');
+
+        const startExamBtn = document.getElementById('start-exam-btn');
+        const questionCounter = document.getElementById('question-counter');
+        const timerDisplay = document.getElementById('timer-display');
+        const disciplineDisplay = document.getElementById('discipline-display');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+
+        const resultStatus = document.getElementById('result-status');
+        const correctAnswersDisplay = document.getElementById('correct-answers-display');
+        const timeTakenDisplay = document.getElementById('time-taken-display');
+        const reviewBtn = document.getElementById('review-btn');
+        const resetExamBtn = document.getElementById('reset-exam-btn');
+
+        const correctionList = document.getElementById('correction-list');
+        const backToResultsBtn = document.getElementById('back-to-results-btn');
+
+        // Função para formatar o tempo
+        function formatTime(seconds) {
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        // Função para atualizar o timer
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeElapsed);
+            if (timeElapsed >= totalExamTimeSeconds) {
+                clearInterval(timerInterval);
+                finishExam(); // Automaticamente finaliza o simulado
+            }
+        }
+
+        // Inicia o timer
+        function startTimer() {
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                timerInterval = setInterval(() => {
+                    timeElapsed++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        // Carrega uma questão específica
+        function loadQuestion(index) {
+            if (index >= 0 && index < questions.length) {
+                currentQuestionIndex = index;
+                const q = questions[currentQuestionIndex];
+                questionCounter.textContent = `Questão ${currentQuestionIndex + 1}/${questions.length}`;
+                disciplineDisplay.textContent = `Disciplina: ${q.discipline}`;
+                questionText.textContent = q.question;
+                optionsContainer.innerHTML = ''; // Limpa opções anteriores
+
+                q.options.forEach((option, i) => {
+                    const optionId = `q${q.id}-option${i}`;
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.className = 'option-label';
+
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question-${q.id}`;
+                    input.id = optionId;
+                    input.value = option;
+                    input.className = 'mr-2 hidden'; // Oculta o radio button nativo
+
+                    // Evento para registrar a resposta e iniciar o timer
+                    input.addEventListener('change', (e) => {
+                        recordAnswer(q.id, e.target.value);
+                        startTimer(); // Inicia o timer na primeira resposta
+                    });
+
+                    const span = document.createElement('span');
+                    span.textContent = option;
+                    span.className = 'block p-3 rounded-md transition-all duration-200';
+
+                    label.appendChild(input);
+                    label.appendChild(span);
+                    optionsContainer.appendChild(label);
+
+                    // Pre-seleciona a resposta do usuário se já existir
+                    if (userAnswers[q.id] === option) {
+                        input.checked = true;
+                        label.classList.add('bg-blue-50', 'border-[#8A2BE2]');
+                    }
+                });
+
+                // Atualiza estado dos botões de navegação
+                prevBtn.disabled = currentQuestionIndex === 0;
+                nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+                if (currentQuestionIndex === questions.length - 1) {
+                    finishBtn.classList.remove('hidden');
+                    nextBtn.classList.add('hidden');
+                } else {
+                    finishBtn.classList.add('hidden');
+                    nextBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Registra a resposta do usuário
+        function recordAnswer(questionId, selectedAnswer) {
+            userAnswers[questionId] = selectedAnswer;
+            // Remove a classe de seleção anterior para evitar duplicação visual
+            document.querySelectorAll(`#question-${questionId}-options .option-label.bg-blue-50`).forEach(el => {
+                el.classList.remove('bg-blue-50', 'border-[#8A2BE2]');
+            });
+            // Adiciona a classe de seleção à opção atual
+            const selectedLabel = document.querySelector(`input[name="question-${questionId}"][value="${selectedAnswer}"]`)?.closest('label');
+            if (selectedLabel) {
+                selectedLabel.classList.add('bg-blue-50', 'border-[#8A2BE2]');
+            }
+        }
+
+        // Navegação para a próxima questão
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        // Navegação para a questão anterior
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        // Finaliza o simulado
+        function finishExam() {
+            clearInterval(timerInterval);
+            let correctCount = 0;
+            questions.forEach(q => {
+                if (userAnswers[q.id] === q.correctAnswer) {
+                    correctCount++;
+                }
+            });
+
+            const passThreshold = 40;
+            const isApproved = correctCount >= passThreshold;
+
+            resultStatus.textContent = isApproved ? 'APROVADO(A)!' : 'REPROVADO(A)!';
+            resultStatus.className = `text-4xl font-extrabold mb-4 ${isApproved ? 'text-[#32CD32]' : 'text-[#FF4500]'}`; // Lime Green or Orange Red
+            correctAnswersDisplay.textContent = correctCount;
+            timeTakenDisplay.textContent = formatTime(timeElapsed);
+
+            examScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+        }
+
+        // Exibe a tela de correção
+        function showCorrection() {
+            correctionList.innerHTML = ''; // Limpa lista anterior
+            questions.forEach(q => {
+                const userChoice = userAnswers[q.id] || 'Não respondida';
+                const isCorrect = userChoice === q.correctAnswer;
+
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'card mb-6';
+                questionDiv.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-1">Disciplina: ${q.discipline}</p>
+                    <p class="font-bold text-lg mb-4">Questão ${q.id}: ${q.question}</p>
+                    <div class="mb-4">
+                        <p class="mb-1">Sua resposta: <span class="${isCorrect ? 'text-[#32CD32]' : 'text-[#FF4500]'} font-semibold">${userChoice}</span></p>
+                        ${!isCorrect ? `<p class="mb-1">Resposta correta: <span class="text-[#32CD32] font-semibold">${q.correctAnswer}</span></p>` : ''}
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-md text-sm text-gray-700">
+                        <p class="font-semibold mb-1">Explicação:</p>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+                correctionList.appendChild(questionDiv);
+            });
+
+            resultsScreen.classList.add('hidden');
+            correctionScreen.classList.remove('hidden');
+        }
+
+        // Reseta o simulado
+        function resetExam() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            timeElapsed = 0;
+            isTimerRunning = false;
+            clearInterval(timerInterval); // Garante que o timer esteja parado
+            timerDisplay.textContent = '00:00:00'; // Reseta display do timer
+            
+            resultsScreen.classList.add('hidden');
+            correctionScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+            finishBtn.classList.add('hidden'); // Esconde o botão finalizar no início
+            nextBtn.classList.remove('hidden'); // Mostra o botão próxima
+        }
+
+        // Event Listeners
+        startExamBtn.addEventListener('click', () => {
+            introScreen.classList.add('hidden');
+            examScreen.classList.remove('hidden');
+            loadQuestion(0);
+        });
+
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', prevQuestion);
+        finishBtn.addEventListener('click', finishExam);
+        reviewBtn.addEventListener('click', showCorrection);
+        resetExamBtn.addEventListener('click', resetExam);
+        backToResultsBtn.addEventListener('click', () => {
+            correctionScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
+

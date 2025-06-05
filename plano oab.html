@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infográfico OAB: Análise Estratégica para 1ª Fase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f0f2f5, #e0e4eb);
+        }
+        .chart-container {
+            position: relative;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #FFC0CB, #8A2BE2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 192, 203, 0.3); /* Subtle pink border */
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2), 0 6px 12px -3px rgba(0, 0, 0, 0.12);
+        }
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(to right, #FFC0CB, #8A2BE2);
+            width: 80%;
+            margin: 4rem auto;
+            border-radius: 5px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Paleta de Cores Usada: Energetic & Playful (#FFC0CB, #8A2BE2, #FFFF00, #32CD32, #FF4500) -->
+    <!-- Plano Narrativo: O infográfico apresenta uma visão estratégica da 1ª fase da OAB, dividindo as disciplinas em grupos de relevância (Essenciais, Complementares, Básicas). Inicia com uma visão geral e estatísticas chave. Em seguida, detalha os assuntos mais cobrados em cada disciplina dos grupos Essenciais e Complementares usando gráficos de barras para recorrência. Finaliza com uma seção sobre tendências e atualizações legislativas, destacando a importância de se manter atualizado. O fluxo é introdução -> dados essenciais -> dados complementares -> tendências e conclusão. -->
+    <!-- Escolha de Visualizações:
+        - Visão Geral: Big Numbers (Inform), Donut Chart (Comparar composição de grupos - Chart.js).
+        - Disciplinas Essenciais e Complementares: Bar Charts (Comparar recorrência de assuntos dentro de cada disciplina - Chart.js).
+        - Disciplinas Básicas: Lista simples (Organizar agrupamentos de disciplinas de menor peso - HTML/CSS).
+        - Tendências: Lista de cartões (Informar tendências e atualizações - HTML/CSS).
+        - Confirmação: NÃO foi utilizado SVG, NEM Mermaid JS para quaisquer gráficos ou diagramas. Gráficos são Chart.js (Canvas). Diagramas são HTML/CSS/Unicode.
+    -->
+
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Análise Estratégica <span class="gradient-text">OAB 1ª Fase</span></h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <section id="visao-geral" class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-4">O Caminho para a Aprovação Começa com Estratégia</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-8">Entender a estrutura da prova da OAB é o primeiro passo para otimizar seus estudos. Visualize a distribuição das questões e foque no que realmente importa para garantir seus 40 pontos.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card items-center justify-center flex flex-col">
+                    <span class="text-6xl font-black text-[#FF4500]">80</span>
+                    <span class="mt-2 text-xl font-semibold text-gray-700">Questões Totais</span>
+                    <p class="text-sm text-gray-500 mt-1">A prova objetiva que define seu avanço.</p>
+                </div>
+                <div class="card items-center justify-center flex flex-col">
+                    <span class="text-6xl font-black text-[#32CD32]">40</span>
+                    <span class="mt-2 text-xl font-semibold text-gray-700">Pontos para Aprovação</span>
+                     <p class="text-sm text-gray-500 mt-1">O alvo é acertar 50% da prova.</p>
+                </div>
+                <div class="card">
+                     <h3 class="text-xl font-bold mb-2 text-center">Distribuição por Grupo</h3>
+                    <div class="chart-container w-full mx-auto h-64 max-h-[300px]">
+                        <canvas id="gruposChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="grupo-a" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Grupo A: Disciplinas Essenciais</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600">Este grupo representa cerca de 50% da sua prova. Dominar estes temas é fundamental e não-negociável para a aprovação.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Ética e Estatuto da OAB <span class="text-base font-medium text-gray-500">(8 Questões)</span></h3>
+                    <p class="text-sm text-gray-500 mb-4">A matéria com maior peso. Conhecer o estatuto garante uma base sólida de pontos.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="eticaChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Direito Constitucional <span class="text-base font-medium text-gray-500">(~7 Questões)</span></h3>
+                    <p class="text-sm text-gray-500 mb-4">A base do ordenamento jurídico é tema central, com grande foco em direitos fundamentais e controle de constitucionalidade.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="constitucionalChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Direito Civil <span class="text-base font-medium text-gray-500">(~7 Questões)</span></h3>
+                    <p class="text-sm text-gray-500 mb-4">Uma das disciplinas mais extensas, com destaque para contratos e direitos reais.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="civilChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Direito Processual Civil <span class="text-base font-medium text-gray-500">(~6 Questões)</span></h3>
+                     <p class="text-sm text-gray-500 mb-4">O conhecimento sobre recursos e execução é o mais exigido pela banca.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="procCivilChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Direito Penal <span class="text-base font-medium text-gray-500">(~6 Questões)</span></h3>
+                    <p class="text-sm text-gray-500 mb-4">A banca foca na Teoria do Delito e nos crimes de maior repercussão social.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="penalChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-1">Direito Processual Penal <span class="text-base font-medium text-gray-500">(~6 Questões)</span></h3>
+                    <p class="text-sm text-gray-500 mb-4">Temas como competência, prisões e recursos são recorrentes em todos os exames.</p>
+                    <div class="chart-container w-full mx-auto h-96 max-h-[400px]">
+                        <canvas id="procPenalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="section-divider"></div>
+
+        <section id="grupo-b" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Grupo B: Disciplinas Complementares</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600">Com aproximadamente 30% da prova, um bom desempenho neste grupo pode ser o diferencial para sua aprovação.</p>
+            </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-1">Direito Administrativo <span class="text-sm font-medium text-gray-500">(~5 Questões)</span></h3>
+                    <p class="text-xs text-gray-500 mb-3">Atenção máxima à Nova Lei de Licitações e às alterações em Improbidade Administrativa.</p>
+                    <div class="chart-container w-full mx-auto h-72 max-h-[400px]">
+                        <canvas id="adminChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-1">Direito do Trabalho <span class="text-sm font-medium text-gray-500">(~5 Questões)</span></h3>
+                    <p class="text-xs text-gray-500 mb-3">Foco em contrato de trabalho e temas da reforma trabalhista.</p>
+                    <div class="chart-container w-full mx-auto h-72 max-h-[400px]">
+                        <canvas id="trabChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-1">Proc. do Trabalho <span class="text-sm font-medium text-gray-500">(~5 Questões)</span></h3>
+                     <p class="text-xs text-gray-500 mb-3">Recursos e execução são os pilares da cobrança nesta disciplina.</p>
+                    <div class="chart-container w-full mx-auto h-72 max-h-[400px]">
+                        <canvas id="procTrabChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-1">Direito Tributário <span class="text-sm font-medium text-gray-500">(~5 Questões)</span></h3>
+                    <p class="text-xs text-gray-500 mb-3">Limitações ao poder de tributar e espécies tributárias são sempre cobrados.</p>
+                    <div class="chart-container w-full mx-auto h-72 max-h-[400px]">
+                        <canvas id="tribChart"></canvas>
+                    </div>
+                </div>
+                 <div class="card lg:col-span-2">
+                    <h3 class="text-xl font-bold mb-1">Direito Empresarial <span class="text-sm font-medium text-gray-500">(~4 Questões)</span></h3>
+                    <p class="text-xs text-gray-500 mb-3">Direito societário e a lei de falências são os principais focos.</p>
+                    <div class="chart-container w-full mx-auto h-72 max-h-[400px]">
+                        <canvas id="empresarialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="tendencias" class="mb-12 card bg-gray-800 text-white">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-2 text-white">Fique de Olho: Tendências e Atualizações</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-300">A FGV adora novidades. Estar atualizado com as últimas alterações legislativas e jurisprudenciais é crucial.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#FFC0CB]">Nova Lei de Licitações</h4>
+                    <p class="text-sm text-gray-300">A Lei nº 14.133/2021 é cobrança certa em Direito Administrativo. Domine seus princípios, modalidades e contratos.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#8A2BE2]">Reforma Tributária</h4>
+                    <p class="text-sm text-gray-300">Entenda os conceitos gerais da EC 132/2023, como o IVA Dual e os novos impostos (IBS e CBS), que podem aparecer em Direito Tributário.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#FFFF00]">Tecnologia e Direito</h4>
+                    <p class="text-sm text-gray-300">Temas como crimes cibernéticos, uso de IA (Lei 15.123/25) e a LGPD estão cada vez mais presentes em diversas disciplinas.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#32CD32]">Alterações no CPP e CPC</h4>
+                    <p class="text-sm text-gray-300">Fique atento às leis recentes que alteram regras sobre recursos, honorários e julgamentos colegiados.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#FF4500]">Direitos Humanos e Sociais</h4>
+                    <p class="text-sm text-gray-300">Novas leis de proteção a vulneráveis (Lei 14.811/24) e decisões do STF sobre temas sociais (regime de bens, etc.) são fortes candidatos.</p>
+                </div>
+                 <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-[#FFC0CB]">Atualizações em Ética</h4>
+                    <p class="text-sm text-gray-300">A Lei 14.365/22 trouxe mudanças importantes ao Estatuto que ainda são muito exploradas pela banca.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="grupo-c" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Grupo C: Disciplinas Básicas</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600">Com cerca de 20% da prova, um estudo focado na lei seca e nos conceitos principais pode garantir pontos preciosos com menor esforço.</p>
+            </div>
+            <div class="card">
+                <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 text-gray-700">
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#FFC0CB;">●</span>Direitos Humanos</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#8A2BE2;">●</span>Direito Internacional</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#FFFF00;">●</span>Filosofia do Direito</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#32CD32;">●</span>Estatuto da Criança e do Adolescente (ECA)</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#FF4500;">●</span>Direito do Consumidor</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#FFC0CB;">●</span>Direito Ambiental</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#8A2BE2;">●</span>Direito Previdenciário</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#FFFF00;">●</span>Direito Financeiro</li>
+                    <li class="flex items-center"><span class="text-xl mr-3" style="color:#32CD32;">●</span>Direito Eleitoral</li>
+                </ul>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>Infográfico criado para fins de estudo estratégico. Baseado na análise de exames anteriores da OAB.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const wrapLabel = (str, maxWidth = 16) => {
+                if (str.length <= maxWidth) {
+                    return str;
+                }
+                const words = str.split(' ');
+                const lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + ' ' + word).trim().length > maxWidth && currentLine.length > 0) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = (currentLine + ' ' + word).trim();
+                    }
+                }
+                if (currentLine.length > 0) {
+                    lines.push(currentLine);
+                }
+                return lines;
+            };
+
+            const tooltipTitleCallback = {
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: (tooltipItems) => {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const palette = ['#FFC0CB', '#8A2BE2', '#FFFF00', '#32CD32', '#FF4500'];
+
+            const renderBarChart = (ctx, labels, data, chartLabel) => {
+                const processedLabels = labels.map(label => wrapLabel(label));
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: processedLabels,
+                        datasets: [{
+                            label: chartLabel,
+                            data: data,
+                            backgroundColor: palette,
+                            borderColor: palette.map(color => color + 'B3'),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...tooltipTitleCallback,
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            const recurrenceToNumber = (level) => {
+                switch (level) {
+                    case 'Muito Alta': return 4;
+                    case 'Alta': return 3;
+                    case 'Média': return 2;
+                    case 'Baixa': return 1;
+                    default: return 0;
+                }
+            };
+
+            const gruposCtx = document.getElementById('gruposChart')?.getContext('2d');
+            if (gruposCtx) {
+                new Chart(gruposCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Grupo A (Essencial)', 'Grupo B (Complementar)', 'Grupo C (Básico)'],
+                        datasets: [{
+                            data: [50, 30, 20],
+                            backgroundColor: ['#8A2BE2', '#FFC0CB', '#FF4500'],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                        }
+                    }
+                });
+            }
+
+            const eticaData = {
+                labels: ["Direitos e Prerrogativas", "Honorários Advocatícios", "Infrações e Sanções", "Órgãos da OAB", "Incompatibilidades", "Processo Disciplinar"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('eticaChart')?.getContext('2d'), eticaData.labels, eticaData.data, 'Recorrência');
+
+            const constitucionalData = {
+                labels: ["Direitos e Garantias Fundamentais (Art. 5º)", "Controle de Constitucionalidade", "Organização dos Poderes", "Ordem Social", "Processo Legislativo"],
+                data: [recurrenceToNumber('Muito Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('constitucionalChart')?.getContext('2d'), constitucionalData.labels, constitucionalData.data, 'Recorrência');
+            
+            const civilData = {
+                labels: ["Contratos (Teoria e Espécie)", "Direitos Reais (Posse e Propriedade)", "Obrigações", "Responsabilidade Civil", "Direito de Família"],
+                data: [recurrenceToNumber('Muito Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('civilChart')?.getContext('2d'), civilData.labels, civilData.data, 'Recorrência');
+
+            const procCivilData = {
+                labels: ["Recursos (Teoria e Espécie)", "Execução e Cumprimento de Sentença", "Tutela Provisória", "Procedimentos Especiais", "Teoria Geral do Processo"],
+                data: [recurrenceToNumber('Muito Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('procCivilChart')?.getContext('2d'), procCivilData.labels, procCivilData.data, 'Recorrência');
+
+            const penalData = {
+                labels: ["Teoria do Delito", "Crimes em Espécie", "Teoria Geral da Pena", "Concurso de Crimes", "Extinção de Punibilidade"],
+                data: [recurrenceToNumber('Muito Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('penalChart')?.getContext('2d'), penalData.labels, penalData.data, 'Recorrência');
+            
+            const procPenalData = {
+                labels: ["Competência", "Recursos Criminais", "Prisões e Medidas Cautelares", "Provas", "Ação Penal"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('procPenalChart')?.getContext('2d'), procPenalData.labels, procPenalData.data, 'Recorrência');
+
+            const adminData = {
+                labels: ["Nova Lei de Licitações", "Improbidade Administrativa", "Serviços Públicos", "Intervenção do Estado na Propriedade", "Atos Administrativos"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('adminChart')?.getContext('2d'), adminData.labels, adminData.data, 'Recorrência');
+
+            const trabData = {
+                labels: ["Contrato Individual de Trabalho", "Salário e Remuneração", "Jornada de Trabalho", "Rescisão Contratual"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('trabChart')?.getContext('2d'), trabData.labels, trabData.data, 'Recorrência');
+            
+            const procTrabData = {
+                labels: ["Competência da JT", "Recursos Trabalhistas", "Execução Trabalhista", "Procedimentos"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('procTrabChart')?.getContext('2d'), procTrabData.labels, procTrabData.data, 'Recorrência');
+            
+            const tribData = {
+                labels: ["Conceito e Espécies de Tributos", "Limitações ao Poder de Tributar", "Obrigação e Responsabilidade", "Impostos"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Média')]
+            };
+            renderBarChart(document.getElementById('tribChart')?.getContext('2d'), tribData.labels, tribData.data, 'Recorrência');
+            
+            const empresarialData = {
+                labels: ["Direito Societário", "Direito Falimentar e Recuperacional", "Títulos de Crédito", "Nome e Estabelecimento"],
+                data: [recurrenceToNumber('Alta'), recurrenceToNumber('Alta'), recurrenceToNumber('Média'), recurrenceToNumber('Baixa')]
+            };
+            renderBarChart(document.getElementById('empresarialChart')?.getContext('2d'), empresarialData.labels, empresarialData.data, 'Recorrência');
+
+        });
+    </script>
+</body>
+</html>

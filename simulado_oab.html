@@ -50,16 +50,16 @@
             transform: translateY(-2px);
         }
         .btn-secondary {
-            background-color: #FFC0CB; /* Pink */
-            color: #8A2BE2;
+            background-color: #e2e8f0; /* Gray-200 */
+            color: #4a5568; /* Gray-700 */
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
         }
         .btn-secondary:hover {
-            background-color: #E0A0B0; /* Slightly darker Pink */
-            color: white;
+            background-color: #cbd5e0; /* Gray-300 */
+            color: #2d3748; /* Gray-800 */
             transform: translateY(-2px);
         }
         .btn-finish {
@@ -119,6 +119,24 @@
         #custom-alert-modal > div {
             border: 1px solid #8A2BE2;
         }
+
+        .btn-audio {
+            background-color: #a0aec0; /* Gray-400 */
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* Larger icon */
+            margin-left: 1rem;
+        }
+        .btn-audio:hover {
+            background-color: #718096; /* Gray-500 */
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -136,6 +154,8 @@
                     <li>O contador de tempo será ativado **assim que você responder a primeira questão**.</li>
                     <li>Para ser aprovado, você precisa acertar no mínimo 40 questões (50% da prova).</li>
                     <li>Ao finalizar, você verá seu resultado e poderá revisar todas as questões com a correção.</li>
+                    <li>Você pode <strong class="text-[#8A2BE2]">clicar em uma questão já selecionada para desmarcá-la</strong>.</li>
+                    <li>Use o botão <strong class="text-[#a0aec0]">🔊 para ouvir a pergunta</strong>.</li>
                 </ul>
             </div>
             <button id="start-exam-btn" class="btn-primary">Iniciar Simulado</button>
@@ -150,7 +170,10 @@
 
             <div id="question-area" class="mb-8">
                 <p class="text-gray-600 text-sm mb-2" id="discipline-display"></p>
-                <p class="text-xl font-semibold mb-6" id="question-text"></p>
+                <div class="flex items-center mb-6">
+                    <p class="text-xl font-semibold" id="question-text"></p>
+                    <button id="listen-question-btn" class="btn-audio" aria-label="Ouvir pergunta">🔊</button>
+                </div>
                 <div id="options-container">
                     <!-- Opções serão carregadas aqui -->
                 </div>
@@ -654,6 +677,7 @@
         const timerDisplay = document.getElementById('timer-display');
         const disciplineDisplay = document.getElementById('discipline-display');
         const questionText = document.getElementById('question-text');
+        const listenQuestionBtn = document.getElementById('listen-question-btn');
         const optionsContainer = document.getElementById('options-container');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -727,6 +751,11 @@
         // Carrega uma questão específica
         function loadQuestion(index) {
             if (index >= 0 && index < questions.length) {
+                // Stop any ongoing speech when loading a new question
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+
                 currentQuestionIndex = index;
                 const q = questions[currentQuestionIndex];
                 questionCounter.textContent = `Questão ${currentQuestionIndex + 1}/${questions.length}`;
@@ -748,7 +777,6 @@
                     input.className = 'mr-2 hidden'; // Oculta o radio button nativo
 
                     // Evento para registrar a resposta e atualizar a UI da seleção
-                    // Modificado para permitir desmarcar
                     input.addEventListener('click', (e) => {
                         const clickedInput = e.target;
                         const clickedLabel = clickedInput.closest('label');
@@ -901,6 +929,24 @@
             introScreen.classList.remove('hidden');
             finishBtn.classList.add('hidden'); // Esconde o botão finalizar no início
             nextBtn.classList.remove('hidden'); // Mostra o botão próxima
+        }
+
+        // Text-to-Speech (TTS) functionality
+        if ('speechSynthesis' in window) {
+            listenQuestionBtn.addEventListener('click', () => {
+                const textToSpeak = questionText.textContent;
+                if (textToSpeak) {
+                    // Cancel any ongoing speech
+                    window.speechSynthesis.cancel();
+
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = 'pt-BR'; // Set language to Portuguese
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+        } else {
+            // Hide the button if TTS is not supported
+            listenQuestionBtn.classList.add('hidden');
         }
 
         // Event Listeners

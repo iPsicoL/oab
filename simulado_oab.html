@@ -748,15 +748,30 @@
                     input.className = 'mr-2 hidden'; // Oculta o radio button nativo
 
                     // Evento para registrar a resposta e atualizar a UI da seleção
-                    input.addEventListener('change', (e) => {
-                        // Remove 'selected-option' from all labels for this question
-                        document.querySelectorAll(`input[name="question-${q.id}"]`).forEach(radio => {
-                            radio.closest('label').classList.remove('selected-option');
-                        });
-                        // Add 'selected-option' to the currently checked label
-                        e.target.closest('label').classList.add('selected-option');
-                        recordAnswer(q.id, e.target.value);
-                        startTimer(); // Inicia o timer na primeira resposta
+                    // Modificado para permitir desmarcar
+                    input.addEventListener('click', (e) => {
+                        const clickedInput = e.target;
+                        const clickedLabel = clickedInput.closest('label');
+
+                        // Check if the clicked radio button was already checked
+                        if (clickedInput.dataset.wasChecked === 'true') {
+                            clickedInput.checked = false; // Deselect the radio button
+                            clickedLabel.classList.remove('selected-option'); // Remove visual highlight
+                            delete userAnswers[q.id]; // Remove answer from userAnswers
+                            clickedInput.dataset.wasChecked = 'false'; // Update data attribute
+                        } else {
+                            // If it wasn't checked, proceed with normal selection
+                            // First, remove 'selected-option' from all labels for this question
+                            document.querySelectorAll(`input[name="question-${q.id}"]`).forEach(radio => {
+                                radio.closest('label').classList.remove('selected-option');
+                                radio.dataset.wasChecked = 'false'; // Reset wasChecked for others
+                            });
+                            // Add 'selected-option' to the currently checked label
+                            clickedLabel.classList.add('selected-option');
+                            recordAnswer(q.id, clickedInput.value);
+                            clickedInput.dataset.wasChecked = 'true'; // Mark as checked
+                            startTimer(); // Start timer on first answer
+                        }
                     });
 
                     const span = document.createElement('span');
@@ -771,6 +786,9 @@
                     if (userAnswers[q.id] === option) {
                         input.checked = true;
                         label.classList.add('selected-option');
+                        input.dataset.wasChecked = 'true'; // Set data attribute for initial load
+                    } else {
+                        input.dataset.wasChecked = 'false';
                     }
                 });
 
